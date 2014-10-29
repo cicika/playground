@@ -4,9 +4,12 @@ import akka.actor._
 
 import java.util.Date
 
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
+
 object Main extends App {
 
-	val n = 1000000
+	val n = 10000000
 
 	val system = ActorSystem("pg-test")
 
@@ -14,7 +17,9 @@ object Main extends App {
 	val t1 = timestamp
 
 	for(i <- 0 to n) {
-		system.actorOf(Props[Worker], "worker-%d" format i)
+		Future{
+			system.actorOf(Props[Worker], "worker-%d" format i)
+		}
 	}
 	val t2 = timestamp
 	println("Actors created in %d millis ..." format (t2 - t1))
@@ -26,9 +31,9 @@ object Main extends App {
 	class Worker extends Actor {
 		def receive = {
 			case x: Int =>
-				if x < n - 1 {
+				if (x < n - 1) {
 					context.actorSelection("/user/worker-%d" format (x + 1)) ! (x + 1)
-					println("Stopping ... %d" format x)
+				//	println("Stopping ... %d" format x)
 				} else {
 					val t4 = timestamp
 					println("Simulation completed in %d milis. Result %d" format ((t4 - t3), x))
