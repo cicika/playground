@@ -20,9 +20,8 @@ object Main extends App {
 		Future{
 			system.actorOf(Props[Worker], "worker-%d" format i)
 		}
-	}
-	val t2 = timestamp
-	println("Actors created in %d millis ..." format (t2 - t1))
+		if(i == n - 1) println("Actors created in %d millis ..." format (timestamp - t1))
+	}	
 
 	println("Starting simulation...")
 	val t3 = timestamp
@@ -33,12 +32,13 @@ object Main extends App {
 			case x: Int =>
 				if (x < n - 1) {
 					context.actorSelection("/user/worker-%d" format (x + 1)) ! (x + 1)
-				//	println("Stopping ... %d" format x)
+					context stop self
 				} else {
 					val t4 = timestamp
 					println("Simulation completed in %d milis. Result %d" format ((t4 - t3), x))
+					context.system.shutdown
 				}
-				context stop self
+				
 			case _ =>
 		}
 	}

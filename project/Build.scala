@@ -46,6 +46,8 @@ object PG extends Build{
 
     javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation"),
 
+    javaOptions ++= Seq("-Xmx12G"),
+
     ivyLoggingLevel in ThisBuild := UpdateLogging.Quiet,
 
     logLevel := Level.Info,
