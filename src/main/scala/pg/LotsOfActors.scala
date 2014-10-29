@@ -25,14 +25,16 @@ object Main extends App {
 
 	class Worker extends Actor {
 		def receive = {
-			case x: Int if x < n =>
-				context.actorSelection("/user/worker-%d" format (x + 1)) ! (x + 1)
-				println("Stopping ... %d" format x)
+			case x: Int =>
+				if x < n - 1 {
+					context.actorSelection("/user/worker-%d" format (x + 1)) ! (x + 1)
+					println("Stopping ... %d" format x)
+				} else {
+					val t4 = timestamp
+					println("Simulation completed in %d milis. Result %d" format ((t4 - t3), x))
+				}
 				context stop self
-			case x: Int if x == n - 1 =>
-				val t4 = timestamp
-				println("Simulation completed in %d milis. Result %d" format ((t4 - t3), x))
-				context stop self
+			case _ =>
 		}
 	}
 
